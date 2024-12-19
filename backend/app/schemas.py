@@ -11,7 +11,7 @@ class ServiceCreate(Services):
 
 class ServiceOut(Services):
     id : str  = Field(..., alias="_id") 
-    
+
 
 #Review
 class Review(BaseModel):
