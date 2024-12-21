@@ -8,12 +8,12 @@ from typing import List
 
 
 router = APIRouter(
-    prefix="/services",
+    prefix="/api/v1/services",
     tags=["Services"]
 )
 
 
-#get all services
+# GET ALL SERVICES
 @router.get("/", response_model=List[schemas.ServiceOut])
 async def getAllServices(db : MongoClient = Depends(get_db)):
     services = list(db["services"].find())
@@ -22,7 +22,7 @@ async def getAllServices(db : MongoClient = Depends(get_db)):
     return services
 
 
-#create a service
+# ADD A SERVICE
 @router.post("/", response_model=schemas.ServiceOut)
 async def createService(data : schemas.ServiceCreate, db: MongoClient = Depends(get_db)):
     try:
@@ -34,7 +34,7 @@ async def createService(data : schemas.ServiceCreate, db: MongoClient = Depends(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=f"Error inserting item: {str(e)}")
 
 
-#get a service
+# GET A SINGLE SERVICE
 @router.get("/{id}", response_model=schemas.ServiceOut)
 async def getService(id: str, db : MongoClient = Depends(get_db)):
     service = db["services"].find_one({"_id" : ObjectId(id)})
@@ -47,9 +47,9 @@ async def getService(id: str, db : MongoClient = Depends(get_db)):
     return service
 
 
-#edit a service
+# UPDATE A SERVICE
 @router.put("/{id}", response_model=schemas.ServiceOut)
-async def updateService(data: schemas.ServiceCreate, id : str, db : MongoClient = Depends(get_db)):
+async def updateService(data: schemas.ServiceUpdate, id : str, db : MongoClient = Depends(get_db)):
     service = db["services"].find_one({"_id" : ObjectId(id)})
 
     if service is None:
@@ -69,7 +69,7 @@ async def updateService(data: schemas.ServiceCreate, id : str, db : MongoClient 
 
 
 
-#delete a service
+# DELETE A SERVICE
 @router.delete("/{id}")
 async def getService(id: str, db : MongoClient = Depends(get_db)):
     result = db["services"].delete_one({"_id": ObjectId(id)})
