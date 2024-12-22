@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from .. import schemas
+from .. import schemas, ouath2
 from ..database import get_db
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from bson.objectid import ObjectId
+from typing import Annotated
 
 router = APIRouter(
     prefix="/api/v1/bio",
@@ -25,7 +26,7 @@ async def getBio(id : str, db: MongoClient = Depends(get_db)):
 
 # CREATE BIO
 @router.post("/", response_model=schemas.BioOut)
-async def createBio(data: schemas.Bio, db: MongoClient = Depends(get_db)):
+async def createBio(data: schemas.Bio, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
     """
         User can only post data the first time they are creating their own bio.
     """
@@ -41,7 +42,7 @@ async def createBio(data: schemas.Bio, db: MongoClient = Depends(get_db)):
 
 # UPDATE BIO
 @router.put("/{id}")
-async def updateBio(id: str, data: schemas.Bio, db: MongoClient = Depends(get_db)):
+async def updateBio(id: str, data: schemas.Bio, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
     bio = db["bio"].find_one({"_id": ObjectId(id)})
 
     if bio is None:

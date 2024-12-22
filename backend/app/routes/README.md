@@ -6,3 +6,5 @@ The service route offers 5 endpoints allowing the administrator to create, read,
 
 Bio route.
 The Bio route offers 3 endpoints, one for creating the bio which should only be done once i.e when the user is creating it for the first time, one for getting the Bio of the user(owner of the site) and one for updating the information of the Bio which contains the users name, email, description, profile picture and information about what they do.
+
+No one would be able to add, delete or update a service, bio, or approve review without being logged in and being an admin.

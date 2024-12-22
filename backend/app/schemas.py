@@ -61,4 +61,46 @@ class Bio(BaseModel):
 
 class BioOut(Bio):
     id : str  = Field(..., alias="_id")
-   
+
+# FORM
+class LoginData(BaseModel):
+    username: str
+    password: str
+    model_config = {"extra": "forbid"} #don't allow extra fields
+
+
+
+# TOKEN
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+
+# USER
+class User(BaseModel):
+    #id : str  = Field(..., alias="_id")
+    email : EmailStr
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    disabled: bool | None = None
+    
+
+class UserCreate(BaseModel):
+    fullname: str 
+    email: EmailStr
+    password: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    disabled: bool | None = None
+    model_config = {"extra": "forbid"}
+
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+    model_config = {"extra": "forbid"}
+
+class UserInDB(User):
+    hashed_password: str

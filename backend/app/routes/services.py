@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from ..database import get_db
-from .. import schemas
+from .. import schemas, ouath2
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from bson.objectid import ObjectId
-from typing import List
+from typing import List, Annotated
 
 
 router = APIRouter(
@@ -24,7 +24,7 @@ async def getAllServices(db : MongoClient = Depends(get_db)):
 
 # ADD A SERVICE
 @router.post("/", response_model=schemas.ServiceOut)
-async def createService(data : schemas.ServiceCreate, db: MongoClient = Depends(get_db)):
+async def createService(data : schemas.ServiceCreate, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
     try:
         result = db["services"].insert_one(data.model_dump())
         inserted_item = db["services"].find_one({"_id": ObjectId(result.inserted_id)})
@@ -49,7 +49,7 @@ async def getService(id: str, db : MongoClient = Depends(get_db)):
 
 # UPDATE A SERVICE
 @router.put("/{id}", response_model=schemas.ServiceOut)
-async def updateService(data: schemas.ServiceUpdate, id : str, db : MongoClient = Depends(get_db)):
+async def updateService(data: schemas.ServiceUpdate, id : str, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db : MongoClient = Depends(get_db)):
     service = db["services"].find_one({"_id" : ObjectId(id)})
 
     if service is None:
@@ -71,7 +71,7 @@ async def updateService(data: schemas.ServiceUpdate, id : str, db : MongoClient 
 
 # DELETE A SERVICE
 @router.delete("/{id}")
-async def getService(id: str, db : MongoClient = Depends(get_db)):
+async def getService(id: str, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db : MongoClient = Depends(get_db)):
     result = db["services"].delete_one({"_id": ObjectId(id)})
 
     if result.deleted_count == 0:

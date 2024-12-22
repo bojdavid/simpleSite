@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.params import Body
 from ..database import get_db
-from .. import schemas
+from .. import schemas, ouath2
 from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 from bson.objectid import ObjectId
-from typing import List
+from typing import List, Annotated
 
 router = APIRouter(
     prefix="/api/v1/review",
@@ -84,7 +84,7 @@ async def updateReview(data: schemas.ReviewUpdate, id : str, db : MongoClient = 
 
 # APPROVE REVIEW
 @router.put("/approve/{id}")
-async def approveReview(id: str, data : dict = Body(...), db : MongoClient = Depends(get_db)):
+async def approveReview(id: str, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], data : dict = Body(...), db : MongoClient = Depends(get_db)):
     review = db["reviews"].find_one({"_id" : ObjectId(id)})
     
     if review is None:
