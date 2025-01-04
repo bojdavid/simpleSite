@@ -1,8 +1,19 @@
 from fastapi import FastAPI
 from .routes import adminAuth,bio,review,services
 from .database import get_db
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 try:
     get_db()

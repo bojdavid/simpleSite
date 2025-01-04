@@ -9,6 +9,8 @@ class Services(BaseModel):
     image_data: bytes = Field(None, alias="image")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    isApproved: bool =False
+    
     
 
 class ServiceCreate(Services):
@@ -19,6 +21,7 @@ class ServiceUpdate(BaseModel):
     description : str
     image_data: bytes = Field(None, alias="image")
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    isApproved: bool =False
   
 
 class ServiceOut(Services):
@@ -28,10 +31,12 @@ class ServiceOut(Services):
 #Review
 class Review(BaseModel):
     email : EmailStr
+    clientName: str
     rating : int = Field(..., gt=0, lt=6)
     #profile_picture : bytes = Field(None, alias="image")
-    review_text : str
-    is_approved : bool = False
+    text : str
+    approved : bool = False
+    date: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     
@@ -49,6 +54,9 @@ class ReviewUpdate(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
  
+class ReviewApprove(BaseModel):
+    approved : bool
+
     
 class Bio(BaseModel):
     name : str

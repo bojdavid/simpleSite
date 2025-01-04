@@ -84,13 +84,13 @@ async def updateReview(data: schemas.ReviewUpdate, id : str, db : MongoClient = 
 
 # APPROVE REVIEW
 @router.put("/approve/{id}")
-async def approveReview(id: str, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], data : dict = Body(...), db : MongoClient = Depends(get_db)):
+async def approveReview(id: str, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], data : schemas.ReviewApprove, db : MongoClient = Depends(get_db)):
     review = db["reviews"].find_one({"_id" : ObjectId(id)})
     
     if review is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Review with id of {id} was not found")
-    
-    db["reviews"].update_one({"_id": ObjectId(id)}, {"$set": {"is_approved": data["is_approved"]}})
+    print(data)
+    db["reviews"].update_one({"_id": ObjectId(id)}, {"$set": data.model_dump()})
     return {"Message": f"Review with id of {id} has been approved successfully"}
     
 

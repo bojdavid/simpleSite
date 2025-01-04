@@ -14,7 +14,7 @@ from pymongo import MongoClient
 from .config import Settings
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = f"{Settings.access_token_expire_minutes}"
+SECRET_KEY = f"{Settings.secret_key}"
 ALGORITHM = Settings.algorithm
 ACCESS_TOKEN_EXPIRE_MINUTES = Settings.access_token_expire_minutes
 
@@ -41,7 +41,6 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)],  db: M
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        print("herere------------")
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
