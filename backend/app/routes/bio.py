@@ -12,9 +12,10 @@ router = APIRouter(
 )
 
 # GET BIO
-@router.get("/{id}", response_model=schemas.BioOut)
+#@router.get("/{id}", response_model=schemas.BioOut)
+@router.get("/{id}")
 async def getBio(id : str, db: MongoClient = Depends(get_db)):
-    bio = db["bio"].find_one({"_id" : ObjectId(id)})
+    bio = db["users"].find_one({"_id" : ObjectId(id)})
 
     if bio == None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bio not found")

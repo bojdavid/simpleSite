@@ -21,7 +21,7 @@ router = APIRouter(
 async def login( form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  db: MongoClient = Depends(get_db)) -> schemas.Token:
     #print(form_data.password)
     user = utils.authenticate_user(db, form_data.username, form_data.password)
-    #print(type(user["email"]))
+    print(user)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -29,8 +29,11 @@ async def login( form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  db
             headers={"WWW-Authenticate": "Bearer"},
         )
     access_token_expires = timedelta(minutes=Settings.access_token_expire_minutes)
+
+    #Data that would be placed in the token
+    token_data = {"sub": user["email"], "userId": str(user["_id"]), "name":str(user["fullname"])}
     access_token = ouath2.create_access_token(
-        data={"sub": user["email"]}, expires_delta=access_token_expires
+        data=token_data, expires_delta=access_token_expires
     )
     return schemas.Token(access_token=access_token, token_type="bearer")
 
