@@ -14,9 +14,25 @@ router = APIRouter(
 
 
 # GET ALL REVIEWS
-@router.get("/", response_model=List[schemas.ReviewOut])
-async def getAllReviews(db : MongoClient = Depends(get_db)):
-    reviews = list(db["reviews"].find())
+@router.get("/{userId}", response_model=List[schemas.ReviewOut])
+async def getAllReviews(userId: str, db : MongoClient = Depends(get_db)):
+    #Retrieve all reviews for a specific user
+
+    try:
+        # Validate user_id
+        ObjectId(userId)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid user ID format")
+
+     # Check if the user exists 
+    user = db["users"].find_one({"_id": ObjectId(userId)})
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    # Query products by user ID
+    reviews = list(db["reviews"].find({"userId": userId}))
+    
+    #reviews = list(db["reviews"].find())
     for review in reviews:
         review['_id'] = str(review['_id'])  # Convert ObjectId to string for JSON serialization
     return reviews

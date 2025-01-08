@@ -1,5 +1,6 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator
 from datetime import datetime, timezone
+from bson import ObjectId
 
 
 #services
@@ -39,6 +40,21 @@ class Review(BaseModel):
     date: str
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    
+    userId : str
+
+    def validate_user_id(cls, v):
+        if isinstance(v, ObjectId):
+            return v
+        try:
+            return ObjectId(v)
+        except Exception:
+            raise ValueError('Invalid user ID format')
+
+    class Config:
+        populate_by_name = True
+        arbitrary_types_allowed = True
+        json_encoders = {ObjectId: str} 
     
 
 
@@ -89,7 +105,7 @@ class TokenData(BaseModel):
 
 # USER
 class User(BaseModel):
-    #id : str  = Field(..., alias="_id")
+    id : str  = Field(..., alias="_id")
     email : EmailStr
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
