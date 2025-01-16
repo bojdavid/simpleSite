@@ -14,7 +14,7 @@ router = APIRouter(
 # GET BIO
 #@router.get("/{id}", response_model=schemas.BioOut)
 @router.get("/{id}")
-async def getBio(id : str, db: MongoClient = Depends(get_db)):
+async def getBio(id : str,  current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
     bio = db["users"].find_one({"_id" : ObjectId(id)})
 
     if bio == None:
@@ -26,13 +26,15 @@ async def getBio(id : str, db: MongoClient = Depends(get_db)):
 
 
 # CREATE BIO
-@router.post("/", response_model=schemas.BioOut)
-async def createBio(data: schemas.Bio, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
+@router.post("/{userId}", response_model=schemas.BioOut)
+async def createBio(userId: str, data: schemas.Bio, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
     """
         User can only post data the first time they are creating their own bio.
     """
+    data_dict =data.model_dump()
+    data_dict["userId"] = userId
     try:
-        result = db["bio"].insert_one(data.model_dump())
+        result = db["bio"].insert_one(data_dict)
         inserted_item = db["bio"].find_one({"_id": ObjectId(result.inserted_id)})
         inserted_item['_id'] = str(inserted_item['_id'])
         return inserted_item

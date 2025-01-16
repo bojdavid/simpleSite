@@ -21,7 +21,7 @@ router = APIRouter(
 async def login( form_data: Annotated[OAuth2PasswordRequestForm, Depends()],  db: MongoClient = Depends(get_db)) -> schemas.Token:
     #print(form_data.password)
     user = utils.authenticate_user(db, form_data.username, form_data.password)
-    print(user)
+    #print(user)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

@@ -23,7 +23,7 @@ async def getAllServices(db : MongoClient = Depends(get_db)):
 
 
 # ADD A SERVICE
-@router.post("/", response_model=schemas.ServiceOut)
+@router.post("/", response_model=schemas.ServiceOut, status_code=status.HTTP_201_CREATED)
 async def createService(data : schemas.ServiceCreate, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
     try:
         result = db["services"].insert_one(data.model_dump())
@@ -78,3 +78,18 @@ async def getService(id: str, current_user: Annotated[schemas.User, Depends(ouat
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Service not found")
     
     return  {"Message": f"Service with id of {id} has been deleted successfully"}
+
+
+# APPROVE A SERVICE
+@router.put("/approve/{id}")
+async def approveService(id: str, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], data : schemas.ServiceApprove, db : MongoClient = Depends(get_db)):
+    service = db["services"].find_one({"_id" : ObjectId(id)})
+    
+    if service is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"service with id of {id} was not found")
+    db["services"].update_one({"_id": ObjectId(id)}, {"$set": data.model_dump()})
+    if data.isApproved:
+        return {"Message": f"service with id of {id} has been approved successfully"}
+    else:
+        return {"Message": f"service with id of {id} has been disapproved successfully"}
+ 

@@ -1,13 +1,14 @@
-from pydantic import BaseModel, Field, EmailStr, field_validator
+from pydantic import BaseModel, Field, EmailStr, field_validator, ConfigDict
 from datetime import datetime, timezone
 from bson import ObjectId
+from typing import Optional
 
 
 #services
 class Services(BaseModel):
     service : str
     description : str
-    image_data: bytes = Field(None, alias="image")
+    image: Optional[bytes] = None
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     isApproved: bool =False
@@ -20,14 +21,23 @@ class ServiceCreate(Services):
 class ServiceUpdate(BaseModel):
     service : str
     description : str
-    image_data: bytes = Field(None, alias="image")
+    image: Optional[bytes] = None
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     isApproved: bool =False
   
 
 class ServiceOut(Services):
     id : str  = Field(..., alias="_id") 
-    
+    service : str
+    description : str
+    image: Optional[bytes] = None
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    isApproved: bool =False
+
+class ServiceApprove(BaseModel):
+    isApproved : bool
+
     
 #Review
 class Review(BaseModel):
@@ -51,10 +61,17 @@ class Review(BaseModel):
         except Exception:
             raise ValueError('Invalid user ID format')
 
-    class Config:
+    """class Config:
         populate_by_name = True
         arbitrary_types_allowed = True
         json_encoders = {ObjectId: str} 
+    """
+    model_config = ConfigDict(
+        populate_by_name=True,
+        arbitrary_types_allowed=True,
+        json_encoders={ObjectId: str},
+        #extra = "forbid" #If you want to forbid extra parameters
+    ) 
     
 
 
@@ -73,11 +90,12 @@ class ReviewUpdate(BaseModel):
 class ReviewApprove(BaseModel):
     approved : bool
 
-    
+
+#------ BIO --------    
 class Bio(BaseModel):
     name : str
     email : EmailStr
-    profile_picture : bytes = Field(None, alias="image")
+    profile_picture : Optional[bytes] = None
     description : str #give us an introduction or a motto
     about : str    #tell us about your bussiness
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -85,6 +103,7 @@ class Bio(BaseModel):
 
 class BioOut(Bio):
     id : str  = Field(..., alias="_id")
+    userId : str
 
 # FORM
 class LoginData(BaseModel):
@@ -121,10 +140,12 @@ class UserCreate(BaseModel):
     disabled: bool | None = None
     model_config = {"extra": "forbid"}
 
+"""
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
     model_config = {"extra": "forbid"}
+"""
 
 class UserInDB(User):
     hashed_password: str
