@@ -50,6 +50,7 @@ async def getService(id: str, db : MongoClient = Depends(get_db)):
 # UPDATE A SERVICE
 @router.put("/{id}", response_model=schemas.ServiceOut)
 async def updateService(data: schemas.ServiceUpdate, id : str, current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db : MongoClient = Depends(get_db)):
+    print(data)
     service = db["services"].find_one({"_id" : ObjectId(id)})
 
     if service is None:

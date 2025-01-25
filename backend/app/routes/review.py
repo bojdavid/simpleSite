@@ -14,7 +14,7 @@ router = APIRouter(
 
 
 # GET ALL REVIEWS
-@router.get("/{userId}", response_model=List[schemas.ReviewOut])
+@router.get("/user/{userId}", response_model=List[schemas.ReviewOut])
 async def getAllReviews(userId: str, db : MongoClient = Depends(get_db)):
     #Retrieve all reviews for a specific user
         
