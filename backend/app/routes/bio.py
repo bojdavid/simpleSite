@@ -14,7 +14,7 @@ router = APIRouter(
 # GET BIO
 #@router.get("/{id}", response_model=schemas.BioOut)
 @router.get("/{id}")
-async def getBio(id : str,  current_user: Annotated[schemas.User, Depends(ouath2.get_current_active_user)], db: MongoClient = Depends(get_db)):
+async def getBio(id : str, db: MongoClient = Depends(get_db)):
     bio = db["users"].find_one({"_id" : ObjectId(id)})
 
     if bio == None:
